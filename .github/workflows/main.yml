@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      docker:
+        image: docker:latest
+        options: >-
+          --privileged
+          --network host
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Build Docker image
+        run: |
+          docker build -f Dockerfile.dev -t TEST_IMAGE .
+
+      - name: Run tests
+        run: |
+          docker run -e CI=true TEST_IMAGE npm run test
